@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.myapplication">
+
+    <!-- 网络权限 - AI服务需要 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- 存储权限 - 相册选择头像需要 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- 定时任务权限 - 每日重置需要 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
+    <application
+        android:name=".MyApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/yytb"
+        android:label="刷刷题"
+        android:roundIcon="@drawable/yytb"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MyApplication">
+        <activity
+            android:name=".ui.LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.EditProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.ErrorSessionDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".ui.PracticeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.ErrorBookActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.SummaryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.AIChatActivity"
+            android:exported="false"
+            android:label="AI学习助手"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.AISettingsActivity"
+            android:exported="false"
+            android:label="AI设置"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.QuestionBankActivity"
+            android:exported="false"
+            android:label="题目库"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.QuestionDetailActivity"
+            android:exported="false"
+            android:label="题目详情"
+            android:parentActivityName=".ui.QuestionBankActivity" />
+        <activity
+            android:name=".ui.QuestionGenerationActivity"
+            android:exported="false"
+            android:label="智能题目生成"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.GeneratedQuestionTestActivity"
+            android:exported="false"
+            android:label="生成题目测试"
+            android:parentActivityName=".ui.QuestionGenerationActivity" />
+        <activity
+            android:name=".ui.ErrorAnalysisReportActivity"
+            android:exported="false"
+            android:label="错题分析报告"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.ReportDetailActivity"
+            android:exported="false"
+            android:label="报告详情"
+            android:parentActivityName=".ui.ErrorAnalysisReportActivity" />
+        <activity
+            android:name=".ui.PersonalizedStudyPlanActivity"
+            android:exported="false"
+            android:label="个性化学习计划"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.StudyStatsActivity"
+            android:exported="false"
+            android:label="学习统计"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.StudyReportActivity"
+            android:exported="false"
+            android:label="学习报告"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.StudyTimeTestActivity"
+            android:exported="false"
+            android:label="学习时间统计测试"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.StudyHistoryActivity"
+            android:exported="false"
+            android:label="学习历史统计"
+            android:parentActivityName=".ui.StudyTimeTestActivity" />
+        <activity
+            android:name=".activity.GitHubConfigActivity"
+            android:exported="false"
+            android:label="GitHub云端同步"
+            android:parentActivityName=".ui.MainActivity" />
+
+        <!-- 每日重置服务 -->
+        <service
+            android:name=".service.DailyResetService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <!-- 每日重置广播接收器 -->
+        <receiver
+            android:name=".service.DailyResetService$DailyResetReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.example.myapplication.DAILY_RESET" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>
