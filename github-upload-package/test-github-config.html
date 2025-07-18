@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub配置测试工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            margin-bottom: 20px;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 GitHub配置测试工具</h1>
+        
+        <div class="info">
+            <strong>📋 使用说明：</strong><br>
+            1. 输入您的GitHub用户名和Personal Access Token<br>
+            2. 点击测试按钮验证配置是否正确<br>
+            3. 如果测试通过，说明可以在Android应用中使用相同配置
+        </div>
+
+        <form id="testForm">
+            <div class="form-group">
+                <label for="username">GitHub用户名:</label>
+                <input type="text" id="username" name="username" placeholder="输入您的GitHub用户名" required>
+            </div>
+
+            <div class="form-group">
+                <label for="token">Personal Access Token:</label>
+                <input type="password" id="token" name="token" placeholder="输入您的GitHub Token" required>
+                <small style="color: #666;">确保Token具有 'gist' 权限</small>
+            </div>
+
+            <button type="submit" id="testBtn">🧪 测试GitHub配置</button>
+        </form>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const token = document.getElementById('token').value.trim();
+            const resultDiv = document.getElementById('result');
+            const testBtn = document.getElementById('testBtn');
+            
+            if (!username || !token) {
+                showResult('error', '请填写完整的用户名和Token');
+                return;
+            }
+            
+            // 显示加载状态
+            testBtn.disabled = true;
+            testBtn.textContent = '🔄 测试中...';
+            showResult('info', '正在测试GitHub连接...');
+            
+            try {
+                // 测试GitHub API连接
+                const response = await fetch('https://api.github.com/user', {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'User-Agent': 'MyApplication3-Test'
+                    }
+                });
+                
+                if (response.ok) {
+                    const userData = await response.json();
+                    
+                    // 验证用户名是否匹配
+                    if (userData.login.toLowerCase() === username.toLowerCase()) {
+                        // 测试Gist权限
+                        const gistResponse = await fetch('https://api.github.com/gists', {
+                            headers: {
+                                'Authorization': `token ${token}`,
+                                'Accept': 'application/vnd.github.v3+json',
+                                'User-Agent': 'MyApplication3-Test'
+                            }
+                        });
+                        
+                        if (gistResponse.ok) {
+                            showResult('success', `
+                                ✅ GitHub配置测试成功！<br><br>
+                                <strong>用户信息：</strong><br>
+                                • 用户名: ${userData.login}<br>
+                                • 显示名: ${userData.name || '未设置'}<br>
+                                • 邮箱: ${userData.email || '未公开'}<br>
+                                • Gist权限: ✅ 正常<br><br>
+                                <strong>✨ 您现在可以在Android应用中使用这些配置信息了！</strong>
+                            `);
+                        } else {
+                            showResult('error', `
+                                ❌ Token缺少Gist权限<br><br>
+                                请确保您的Personal Access Token具有 'gist' 权限：<br>
+                                1. 访问 <a href="https://github.com/settings/tokens" target="_blank">GitHub Token设置</a><br>
+                                2. 编辑您的Token<br>
+                                3. 勾选 'gist' 权限<br>
+                                4. 保存更改
+                            `);
+                        }
+                    } else {
+                        showResult('error', `
+                            ❌ 用户名不匹配<br><br>
+                            输入的用户名: ${username}<br>
+                            Token对应的用户名: ${userData.login}<br><br>
+                            请确保用户名和Token匹配。
+                        `);
+                    }
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    showResult('error', `
+                        ❌ GitHub API请求失败<br><br>
+                        状态码: ${response.status}<br>
+                        错误信息: ${errorData.message || '未知错误'}<br><br>
+                        可能的原因：<br>
+                        • Token无效或已过期<br>
+                        • Token权限不足<br>
+                        • 网络连接问题
+                    `);
+                }
+                
+            } catch (error) {
+                showResult('error', `
+                    ❌ 连接失败<br><br>
+                    错误详情: ${error.message}<br><br>
+                    请检查：<br>
+                    • 网络连接是否正常<br>
+                    • Token是否正确复制<br>
+                    • GitHub服务是否可用
+                `);
+            } finally {
+                testBtn.disabled = false;
+                testBtn.textContent = '🧪 测试GitHub配置';
+            }
+        });
+        
+        function showResult(type, message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = message;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

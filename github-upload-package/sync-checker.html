@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据同步检查器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .status-card {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .status-card.success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        .status-card.warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        .status-card.error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        .step {
+            background: #e9ecef;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #6c757d;
+        }
+        .step.active {
+            border-left-color: #007bff;
+            background: #cce5ff;
+        }
+        .step.completed {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 MyApplication3 数据同步检查器</h1>
+        
+        <div class="status-card warning">
+            <h3>❓ 为什么手机App登录后网页没有数据？</h3>
+            <p><strong>主要原因</strong>：当前版本的App登录后，数据只保存在手机本地，没有自动同步到GitHub云端。</p>
+            <p><strong>解决方案</strong>：需要在App中配置GitHub同步功能，或使用下面的工具检查和修复。</p>
+        </div>
+
+        <div class="form-group">
+            <label for="username">GitHub 用户名:</label>
+            <input type="text" id="username" value="wanglincheng0909" placeholder="输入GitHub用户名">
+        </div>
+        
+        <div class="form-group">
+            <label for="token">Personal Access Token:</label>
+            <input type="password" id="token" value="ghp_1Ucuw6OAZZgddNe4abGTvlFYHKW8ie1DC3ox" placeholder="输入GitHub Token">
+        </div>
+        
+        <button onclick="checkSyncStatus()">🔍 检查同步状态</button>
+        <button onclick="createInitialData()" class="btn-success">🚀 创建初始数据</button>
+        <button onclick="showSyncGuide()" class="btn-warning">📖 查看同步指南</button>
+        
+        <div id="result"></div>
+        
+        <div id="syncGuide" style="display: none;">
+            <div class="status-card">
+                <h3>📱 App端数据同步步骤</h3>
+                <div class="step">
+                    <strong>步骤1：进入GitHub配置</strong>
+                    <p>在App中找到 设置 → GitHub云端同步 → 配置GitHub</p>
+                </div>
+                <div class="step">
+                    <strong>步骤2：输入配置信息</strong>
+                    <div class="code-block">
+GitHub用户名: wanglincheng0909
+Personal Access Token: ghp_1Ucuw6OAZZgddNe4abGTvlFYHKW8ie1DC3ox</div>
+                </div>
+                <div class="step">
+                    <strong>步骤3：测试连接</strong>
+                    <p>点击"测试GitHub配置"按钮，确保连接成功</p>
+                </div>
+                <div class="step">
+                    <strong>步骤4：手动同步</strong>
+                    <p>在设置中找到"同步数据到云端"选项，手动触发一次同步</p>
+                </div>
+                <div class="step">
+                    <strong>步骤5：验证同步</strong>
+                    <p>使用本页面的"检查同步状态"功能验证数据是否已上传</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gistId = null;
+        let authToken = null;
+
+        async function checkSyncStatus() {
+            const username = document.getElementById('username').value.trim();
+            authToken = document.getElementById('token').value.trim();
+            
+            if (!username || !authToken) {
+                showResult('error', '请输入GitHub用户名和Token');
+                return;
+            }
+
+            showLoading('正在检查同步状态...');
+
+            try {
+                // 检查是否存在数据Gist
+                const gists = await fetchGists(username);
+                const dataGist = findDataGist(gists, username);
+                
+                if (!dataGist) {
+                    showResult('warning', '未找到数据Gist', `
+                        <h4>🔍 检查结果：</h4>
+                        <p>❌ 在GitHub中未找到MyApplication3的数据存储</p>
+                        <p><strong>可能原因：</strong></p>
+                        <ul>
+                            <li>App中还未配置GitHub同步功能</li>
+                            <li>配置了但还未进行过数据同步</li>
+                            <li>Gist创建失败</li>
+                        </ul>
+                        <p><strong>解决方案：</strong></p>
+                        <ul>
+                            <li>点击"创建初始数据"按钮创建空的数据结构</li>
+                            <li>在App中配置GitHub同步功能</li>
+                            <li>手动触发一次数据同步</li>
+                        </ul>
+                    `);
+                    return;
+                }
+
+                gistId = dataGist.id;
+                
+                // 检查Gist内容
+                const gistDetails = await fetchGistDetails(dataGist.id);
+                const files = Object.keys(gistDetails.files);
+                const expectedFiles = ['user_data.json', 'study_records.json', 'error_records.json', 'app_settings.json'];
+                
+                let statusHtml = '<h4>🔍 检查结果：</h4>';
+                statusHtml += `<p>✅ 找到数据Gist: <code>${dataGist.id}</code></p>`;
+                statusHtml += `<p>📅 创建时间: ${new Date(dataGist.created_at).toLocaleString()}</p>`;
+                statusHtml += `<p>🔄 更新时间: ${new Date(dataGist.updated_at).toLocaleString()}</p>`;
+                statusHtml += '<h5>📁 数据文件状态：</h5><ul>';
+                
+                let allFilesExist = true;
+                expectedFiles.forEach(file => {
+                    if (files.includes(file)) {
+                        const content = gistDetails.files[file].content;
+                        const size = content.length;
+                        statusHtml += `<li>✅ ${file} (${size} 字符)</li>`;
+                    } else {
+                        statusHtml += `<li>❌ ${file} (缺失)</li>`;
+                        allFilesExist = false;
+                    }
+                });
+                
+                statusHtml += '</ul>';
+                
+                if (allFilesExist) {
+                    statusHtml += '<p><strong>🎉 数据同步状态正常！</strong></p>';
+                    showResult('success', '数据同步检查完成', statusHtml);
+                } else {
+                    statusHtml += '<p><strong>⚠️ 部分数据文件缺失，建议重新同步</strong></p>';
+                    showResult('warning', '数据同步不完整', statusHtml);
+                }
+                
+            } catch (error) {
+                showResult('error', '检查失败: ' + error.message);
+            }
+        }
+
+        async function createInitialData() {
+            const username = document.getElementById('username').value.trim();
+            authToken = document.getElementById('token').value.trim();
+            
+            if (!username || !authToken) {
+                showResult('error', '请输入GitHub用户名和Token');
+                return;
+            }
+
+            showLoading('正在创建初始数据结构...');
+
+            try {
+                const initialData = {
+                    'user_data.json': JSON.stringify({
+                        username: username,
+                        nickname: username,
+                        registrationDate: new Date().toISOString(),
+                        lastSyncTime: new Date().toISOString(),
+                        avatar: null,
+                        gender: null,
+                        grade: null,
+                        subjects: []
+                    }, null, 2),
+                    'study_records.json': JSON.stringify({
+                        records: [],
+                        totalSessions: 0,
+                        lastUpdated: new Date().toISOString()
+                    }, null, 2),
+                    'error_records.json': JSON.stringify({
+                        records: [],
+                        totalErrors: 0,
+                        lastUpdated: new Date().toISOString()
+                    }, null, 2),
+                    'app_settings.json': JSON.stringify({
+                        theme: "default",
+                        notifications: true,
+                        autoSync: true,
+                        lastUpdated: new Date().toISOString()
+                    }, null, 2)
+                };
+
+                const gistData = {
+                    description: `MyApplication3 User Data - ${username}`,
+                    public: false,
+                    files: {}
+                };
+
+                Object.keys(initialData).forEach(filename => {
+                    gistData.files[filename] = {
+                        content: initialData[filename]
+                    };
+                });
+
+                const response = await fetch('https://api.github.com/gists', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${authToken}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(gistData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`创建Gist失败: ${response.status} ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                
+                showResult('success', '初始数据创建成功！', `
+                    <h4>🎉 创建成功：</h4>
+                    <p>✅ Gist ID: <code>${result.id}</code></p>
+                    <p>✅ 创建了4个数据文件</p>
+                    <p>✅ 数据结构已初始化</p>
+                    <p><strong>下一步：</strong></p>
+                    <ul>
+                        <li>在App中配置GitHub同步功能</li>
+                        <li>使用相同的用户名和Token</li>
+                        <li>App会自动找到并使用这个数据存储</li>
+                    </ul>
+                `);
+
+            } catch (error) {
+                showResult('error', '创建失败: ' + error.message);
+            }
+        }
+
+        async function fetchGists(username) {
+            const response = await fetch(`https://api.github.com/users/${username}/gists`, {
+                headers: {
+                    'Authorization': `token ${authToken}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`获取Gist列表失败: ${response.status} ${response.statusText}`);
+            }
+            
+            return await response.json();
+        }
+
+        function findDataGist(gists, username) {
+            return gists.find(gist => 
+                gist.description && 
+                gist.description.includes('MyApplication3 User Data') &&
+                gist.description.includes(username)
+            );
+        }
+
+        async function fetchGistDetails(gistId) {
+            const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                headers: {
+                    'Authorization': `token ${authToken}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`获取Gist详情失败: ${response.status} ${response.statusText}`);
+            }
+            
+            return await response.json();
+        }
+
+        function showSyncGuide() {
+            const guide = document.getElementById('syncGuide');
+            if (guide.style.display === 'none') {
+                guide.style.display = 'block';
+            } else {
+                guide.style.display = 'none';
+            }
+        }
+
+        function showLoading(message) {
+            document.getElementById('result').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>${message}</div>
+                </div>
+            `;
+        }
+
+        function showResult(type, title, content = '') {
+            document.getElementById('result').innerHTML = `
+                <div class="status-card ${type}">
+                    <h3>${title}</h3>
+                    ${content}
+                </div>
+            `;
+        }
+
+        // 页面加载时显示说明
+        document.addEventListener('DOMContentLoaded', function() {
+            showResult('', '🔍 数据同步诊断工具', `
+                <p>此工具帮助您诊断和解决App登录后网页无数据的问题。</p>
+                <p><strong>使用步骤：</strong></p>
+                <ol>
+                    <li>点击"检查同步状态"查看当前数据状态</li>
+                    <li>如果没有数据，点击"创建初始数据"</li>
+                    <li>在App中配置GitHub同步功能</li>
+                    <li>重新检查确认数据同步成功</li>
+                </ol>
+            `);
+        });
+    </script>
+</body>
+</html>
